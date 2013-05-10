@@ -1,15 +1,18 @@
 package visualbookmarking.ui;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
+
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
-import org.apache.commons.fileupload.servlet.*;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import visualbookmarking.backend.DBHandler;
 import visualbookmarking.bean.BookMark;
@@ -28,28 +31,19 @@ public class BookMarkServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String option = request.getParameter("option");
-		if (option.equalsIgnoreCase("add")) {
-			BookMark bookMark = new BookMark();
+		try {
+			String option = request.getParameter("option");
+			if (option != null && option.equalsIgnoreCase("retrieve")) {
+				String id = request.getParameter("id");
+				BookMark bookmark = new BookMark();
+				if (id != null && !(id.trim().equals(""))) {
+					bookmark = dbHandler.retrieveBookMark(Integer.parseInt(id));
+				}
 
-			String url = dbHandler.addBookMark(bookMark);
-			response.setStatus(0, url);
-
-		} else if (option.equalsIgnoreCase("retrieve")) {
-
-			int id = Integer.parseInt(request.getParameter("id"));
-
-			Iterator<Part> iterator = request.getParts().iterator();
-			Part parts = null;
-//			while (iterator.hasNext()) {
-//				parts = (Part) iterator.next();
-//				//rest of the code block removed
-//			}
-
-			BookMark bookMark  = dbHandler.retrieveBookMark(id);
-
-		} else {
-
+				// Process bookmark and display image
+			}
+		} catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 
@@ -57,25 +51,47 @@ public class BookMarkServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		try {
-//			List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
-//			for (FileItem item : items) {
-//				if (item.isFormField()) {
-//					// Process regular form field (input type="text|radio|checkbox|etc", select, etc).
-//					String fieldname = item.getFieldName();
-//					String fieldvalue = item.getString();
-//					// ... (do your job here)
-//				} else {
-//					// Process form file field (input type="file").
-//					String fieldname = item.getFieldName();
-//					String filename = FilenameUtils.getName(item.getName());
-//					InputStream filecontent = item.getInputStream();
-//					// ... (do your job here)
-//				}
-//			}
-//		} catch (FileUploadException e) {
-//			throw new ServletException("Cannot parse multipart request.", e);
-//		}
+		try {
+			String option = request.getParameter("option");
+			if (option != null && option.equalsIgnoreCase("add")) {
+				String id = request.getParameter("id");
+				BookMark bookmark = new BookMark();
 
+				if (id != null && !(id.trim().equals(""))) {
+					bookmark.setId(Integer.parseInt(id));
+					List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+					for (FileItem item : items) {
+						if (item.getFieldName().equals("imageFile")) {
+							byte[] image = item.get();
+							FileOutputStream out = new FileOutputStream(item.getName());  
+							try {	
+								out.write(image);  
+							} finally {  
+								out.close();  
+							} 
+							bookmark.setImage(image);
+						}
+						if (item.getFieldName().equals("location")) {
+							bookmark.setLocation(item.getString());
+						}
+						if (item.getFieldName().equals("captureDate")) {
+							bookmark.setCaptureDate(item.getString());
+						}
+						if (item.getFieldName().equals("additionalInfo")) {
+							bookmark.setAdditionalInfo(item.getString());
+						}
+					}
+					boolean status = dbHandler.addBookMark(bookmark);
+					
+					if (status) {
+						response.setStatus(0);
+					} else {
+						response.setStatus(1);
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 }

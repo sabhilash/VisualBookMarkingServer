@@ -47,12 +47,14 @@ public class DBHandler {
 			+ KEY_ADDITIONAL_INFO + " TEXT);";
 			stat.executeUpdate(CREATE_TABLE);
 			conn.close();
+			System.out.println("Database created: "+BOOKMARK_DB);
+			
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
-	public String addBookMark(BookMark bookMark) {
+	public boolean addBookMark(BookMark bookMark) {
 		try {
 			PreparedStatement prep = conn.prepareStatement(
 					"INSERT INTO " + BOOKMARK_TABLE 
@@ -70,11 +72,10 @@ public class DBHandler {
 			prep.executeBatch();
 			conn.setAutoCommit(true);
 			conn.close();
-			String imageURL = "http://localhost:8080/VisualBookMarkingServer/BookMarkServlet?option=retrieve&id="+bookMark.getId();
-			return imageURL;
+			return true;
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
-			return "";
+			return false;
 		}
 	}
 

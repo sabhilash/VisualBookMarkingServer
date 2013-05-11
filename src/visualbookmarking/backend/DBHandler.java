@@ -14,23 +14,23 @@ public class DBHandler {
 
 	private static final String KEY_ID = "id";
 	private static final String KEY_IMAGE = "image";
-	private static final String KEY_URI = "uri";
+	private static final String KEY_FILE_NAME = "file_name";
 	private static final String KEY_LOCATION = "location";
 	private static final String KEY_CAPTURE_DATE = "capture_date";
 	private static final String KEY_ADDITIONAL_INFO = "additional_info";
 	private static Connection conn;
 
-	public DBHandler() {
+	public DBHandler(String basePath) {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn =  DriverManager.getConnection("jdbc:sqlite:" + BOOKMARK_DB);
+			conn =  DriverManager.getConnection("jdbc:sqlite:"+ basePath + BOOKMARK_DB);
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
-
+	
 	public static void main(String[] args) throws Exception {
-		new DBHandler();
+		new DBHandler("WebContent/");
 		createDatabase();
 	}
 
@@ -41,7 +41,7 @@ public class DBHandler {
 			String CREATE_TABLE = "CREATE TABLE " + BOOKMARK_TABLE + "("
 			+ KEY_ID + " INTEGER, " 
 			+ KEY_IMAGE + " BLOB," 
-			+ KEY_URI + " TEXT," 
+			+ KEY_FILE_NAME + " TEXT," 
 			+ KEY_LOCATION + " TEXT," 
 			+ KEY_CAPTURE_DATE + " TEXT," 
 			+ KEY_ADDITIONAL_INFO + " TEXT);";
@@ -58,11 +58,11 @@ public class DBHandler {
 		try {
 			PreparedStatement prep = conn.prepareStatement(
 					"INSERT INTO " + BOOKMARK_TABLE 
-					+ " ( " + KEY_ID + "," + KEY_IMAGE + "," + KEY_LOCATION + "," 
+					+ " ( " + KEY_FILE_NAME + "," + KEY_IMAGE + "," + KEY_LOCATION + "," 
 					+ KEY_CAPTURE_DATE + "," + KEY_ADDITIONAL_INFO + " ) "
-					+ " VALUES (?, ?, ?,?,?);");
+					+ " VALUES (?,?,?,?,?);");
 
-			prep.setInt(1, bookMark.getId());
+			prep.setString(1, bookMark.getFileName());
 			prep.setBytes(2, bookMark.getImage());
 			prep.setString(3, bookMark.getLocation());
 			prep.setString(4, bookMark.getCaptureDate());
@@ -79,15 +79,15 @@ public class DBHandler {
 		}
 	}
 
-	public BookMark retrieveBookMark(int id) {
+	public BookMark retrieveBookMark(String fileName) {
 		BookMark bookMark = new BookMark();
 		try {
 			Statement stat = conn.createStatement();
 			ResultSet rs = stat.executeQuery(
 					"SELECT * FROM " + BOOKMARK_TABLE 
-					+ " WHERE " + KEY_ID + " = " + id + ";");
+					+ " WHERE " + KEY_FILE_NAME + " = " + fileName + ";");
 			while (rs.next()) {
-				bookMark.setId(rs.getInt(KEY_ID));
+				bookMark.setFileName(rs.getString(KEY_FILE_NAME));
 				bookMark.setImage(rs.getBytes(KEY_IMAGE));
 				bookMark.setLocation(rs.getString(KEY_LOCATION));
 				bookMark.setCaptureDate(rs.getString(KEY_CAPTURE_DATE));

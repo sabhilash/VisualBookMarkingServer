@@ -19,7 +19,6 @@ import visualbookmarking.bean.BookMark;
 
 public class BookMarkServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	DBHandler dbHandler = new DBHandler();   
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -32,12 +31,13 @@ public class BookMarkServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			DBHandler dbHandler = new DBHandler(getBasePath(request));   
 			String option = request.getParameter("option");
 			if (option != null && option.equalsIgnoreCase("retrieve")) {
-				String id = request.getParameter("id");
+				String fileName = request.getParameter("fileName");
 				BookMark bookmark = new BookMark();
-				if (id != null && !(id.trim().equals(""))) {
-					bookmark = dbHandler.retrieveBookMark(Integer.parseInt(id));
+				if (fileName != null && !(fileName.trim().equals(""))) {
+					bookmark = dbHandler.retrieveBookMark(fileName);
 				}
 
 				// Process bookmark and display image
@@ -52,24 +52,27 @@ public class BookMarkServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			DBHandler dbHandler = new DBHandler(getBasePath(request));   
 			String option = request.getParameter("option");
 			if (option != null && option.equalsIgnoreCase("add")) {
-				String id = request.getParameter("id");
+				String fileName = request.getParameter("fieName");
 				BookMark bookmark = new BookMark();
 
-				if (id != null && !(id.trim().equals(""))) {
-					bookmark.setId(Integer.parseInt(id));
+				if (fileName != null && !(fileName.trim().equals(""))) {
+					bookmark.setFileName(fileName);
 					List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 					for (FileItem item : items) {
 						if (item.getFieldName().equals("imageFile")) {
 							byte[] image = item.get();
-							FileOutputStream out = new FileOutputStream(item.getName());  
+							bookmark.setImage(image);
+							
+							// Jut for testing...storing to local disk
+							FileOutputStream out = new FileOutputStream(getBasePath(request)+item.getName());  
 							try {	
 								out.write(image);  
 							} finally {  
 								out.close();  
-							} 
-							bookmark.setImage(image);
+							}
 						}
 						if (item.getFieldName().equals("location")) {
 							bookmark.setLocation(item.getString());
@@ -84,9 +87,9 @@ public class BookMarkServlet extends HttpServlet {
 					boolean status = dbHandler.addBookMark(bookmark);
 					
 					if (status) {
-						response.setStatus(0);
-					} else {
 						response.setStatus(1);
+					} else {
+						response.setStatus(0);
 					}
 				}
 			}
@@ -94,4 +97,8 @@ public class BookMarkServlet extends HttpServlet {
 			System.out.println(e.getMessage());
 		}
 	}
+	private String getBasePath(HttpServletRequest request){
+		return request.getSession().getServletContext().getRealPath("/");
+	}
+
 }

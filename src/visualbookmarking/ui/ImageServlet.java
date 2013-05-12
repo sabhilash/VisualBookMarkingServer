@@ -30,25 +30,21 @@ public class ImageServlet extends HttpServlet {
 				response.setContentType("image/png");
 				response.setContentLength(img.length);
 
-				response.setHeader("Content-Disposition", "inline; filename=\""
-						+ id + "\"");
+				response.setHeader("Content-Disposition", "inline; filename=\"" + id + "\"");
 
 				BufferedInputStream input = null;
 				BufferedOutputStream output = null;
 
 				try {
-					input = new BufferedInputStream(new ByteArrayInputStream(
-							img));
-					output = new BufferedOutputStream(
-							response.getOutputStream());
+					input = new BufferedInputStream(new ByteArrayInputStream(img));
+					output = new BufferedOutputStream(response.getOutputStream());
 					byte[] buffer = new byte[8192];
 					int length;
 					while ((length = input.read(buffer)) > 0) {
 						output.write(buffer, 0, length);
 					}
 				} catch (IOException e) {
-					System.out
-							.println("There are errors in reading/writing image stream "
+					System.out.println("There are errors in reading/writing image stream "
 									+ e.getMessage());
 				} finally {
 					if (output != null) {

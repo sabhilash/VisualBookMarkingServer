@@ -24,8 +24,10 @@ body {
 	/* 60px to make the container go all the way to the bottom of the topbar */
 }
 
+.btn-toolbar {
+	text-align: center;
+}
 </style>
-
 
 <!-- Le fav and touch icons -->
 <link rel="shortcut icon" href="assets/ico/favicon.ico">
@@ -38,7 +40,6 @@ body {
 <link rel="apple-touch-icon-precomposed"
 	href="assets/ico/apple-touch-icon-57-precomposed.png">
 </head>
-
 
 <body>
 	<div class="container">
@@ -61,23 +62,43 @@ body {
 			</div>
 		</div>
 
+		<div class="container" align="center">
 
-		<div align="center">
+			<h1>Visual BookMarker</h1>
+			<p style="padding-bottom: 60px;">
+				Search using a Bookmark Id or Username.<br>
+			</p>
 
-		<form method="GET" action="BookMarkInputServlet">
-			Enter a BookMark Id:&nbsp;&nbsp; <input type="text" id="id" name="id">
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			<p>or Enter a imageName: &nbsp;&nbsp; <input type="text" id="imageName" name="imageName">
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-			<p><input type="submit" value="Submit &raquo;"/>&nbsp;&nbsp;<input type="reset" value="Reset &raquo;"/></p>
+			<div class="btn-toolbar">
+				<div class="btn-group searchby" data-toggle="buttons-radio">
+					<button type="button" class="btn text-center active" value="0">Search By Id</button>
+					<button type="button" class="btn text-center" value="1">Search By Name</button>
+				</div>
+			</div>
+			<div>
+				<br>
+				<form class="span12 form-search" method="GET" action="BookMarkInputServlet">
+					<input class="" type="search" id="id" name="id">
+					<button class="btn text-center" type="submit">Search!</button>
+					<input type="hidden" id="search_by" name="search_by" value="0" />
+				</form>
+			</div>
+			<!-- /container -->
 
-          </form>
 		</div>
 
-	</div>
-	<!--  <footer>
-		<p align="center">&copy; Simili Abhilash & Thankam Girija 2013</p>
-	</footer>-->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script type="text/javascript"
+			src="http://platform.twitter.com/widgets.js"></script>
+		<script src="assets/js/jquery-1.9.1.min.js"></script>
+		<script src="assets/js/bootstrap.min.js"></script>
+		<script>
+			$(function() {
+				$(".searchby .btn").click(function() {
+					$("#search_by").val($(this).val());
+				});
+			});
+		</script>
 </body>
 
 </html>

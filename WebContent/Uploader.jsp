@@ -23,7 +23,13 @@ body {
 	padding-top: 160px;
 	/* 60px to make the container go all the way to the bottom of the topbar */
 }
+.center {
+    text-align:center;
+}
 
+.center form {
+    display:inline-block;
+}
 </style>
 
 
@@ -61,22 +67,26 @@ body {
 				</div>
 			</div>
 		</div>
-		
-		
-      <form action="BookMarkServlet" method="post"  enctype="multipart/form-data"  name="uploadForm" id="uploadForm"> 
+		<h1>Upload image</h1><br/>
+      <form class="form-vertical well" action="BookMarkServlet" method="post"  enctype="multipart/form-data"  name="uploadForm" id="uploadForm"> 
       
-      <p>Upload: <input type="file" name="imageFile">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-			<p>Id: <input type="text" name="id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-			<p> Name: <input type="text" name="name" value="harvard">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
-			<p><input type="submit" value="Submit &raquo;"/>&nbsp;&nbsp;<input type="reset" value="Reset &raquo;"/></p>
-      
+      		<div class="editor-label">Upload: </div>
+        	<div class="editor-field"><input type="file" name="imageFile"> </div>
+        	<div class="editor-label">Id: </div>
+			<div class="editor-field"><input type="text" name="id"></div>			
+			<div class="editor-label">Name:</div> 
+			<div class="editor-field"><input type="text" name="name" value="harvard"></div>
+			<div class="editor-field"><input type="submit" value="Submit &raquo;"/><input type="reset" value="Reset &raquo;"/></div>
+			
              <input type="hidden" name="path" value="testpath">
              <input type="hidden" name="captureDate" value="<%=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(new java.util.Date()) %>">
              <input type="hidden" name="lat" value="12.34">
              <input type="hidden" name="long" value="34.45">
              <input type="hidden" name="sharingFlag" value="p">
-             <input type="hidden" name="additionalInfo" value="restuarant">
+             <input type="hidden" name="additionalInfo" value="Uploaded from website">
+             <input type="hidden" name="website" value="true">
             
         </form>  
+        </div>
     </body>  
 </html>  

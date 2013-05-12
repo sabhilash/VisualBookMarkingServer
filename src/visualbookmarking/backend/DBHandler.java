@@ -148,13 +148,14 @@ public class DBHandler {
 	
 	
 	public BookMark retrieveBookMarkById(String id) {
-		BookMark bookMark = new BookMark();
+		BookMark bookMark = null;
 		try {
 			Statement stat = conn.createStatement();
 			ResultSet rs = stat.executeQuery(
 					"SELECT id,name,path,capture_date,lat,long,sharing_flag,additional_info FROM " + BOOKMARK_TABLE 
 					+ " WHERE id = '" + id + "';" );
 			if (rs.next()) {
+				bookMark = new BookMark();
 				bookMark = populateBookMarkProperties(bookMark, rs);
 			}
 			rs.close();

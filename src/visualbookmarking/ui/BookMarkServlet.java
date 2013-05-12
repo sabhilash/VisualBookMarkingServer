@@ -40,25 +40,25 @@ public class BookMarkServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		List bookmarkList = null;
-
 		try {
+			List bookmarkList = null;
 			setDBHandler(request);
 			String id = request.getParameter("id");
-			String imageName = request.getParameter("imageName");
+			String searchBy = request.getParameter("search_by");
 
-			if (id != null && !(id.trim().equals(""))) {
+			if (searchBy.equals("1")) {
+				bookmarkList = dbHandler.retrieveBookMarksByName(id);
+			} else {
 				BookMark bookmark = dbHandler.retrieveBookMarkById(id);
-				bookmarkList = new ArrayList<BookMark>();
-				bookmarkList.add(bookmark);
-			}
-			
-			else if(imageName!=null && !(imageName.trim().equals(""))){
-				bookmarkList = dbHandler.retrieveBookMarksByName(imageName);
+				if (bookmark != null) {
+					bookmarkList = new ArrayList<BookMark>();
+					bookmarkList.add(bookmark);
+				}
 			}
 
 			request.setAttribute("bookmarkList", bookmarkList);
-			request.getRequestDispatcher("image.jsp").forward(request, response);
+			request.getRequestDispatcher("image.jsp")
+					.forward(request, response);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -74,6 +74,7 @@ public class BookMarkServlet extends HttpServlet {
 
 		try {
 
+			boolean website = false;
 			setDBHandler(request);
 			List<FileItem> items = new ServletFileUpload(
 					new DiskFileItemFactory()).parseRequest(request);
@@ -84,39 +85,43 @@ public class BookMarkServlet extends HttpServlet {
 					if (item.getFieldName().equals("imageFile")) {
 						byte[] image = item.get();
 						bookmark.setImage(image);
-					}
-					if (item.getFieldName().equals("id")) {
+					} else if (item.getFieldName().equals("id")) {
 						bookmark.setId(item.getString());
-					}
-					if (item.getFieldName().equals("name")) {
+					} else if (item.getFieldName().equals("name")) {
 						bookmark.setName(item.getString());
-					}
-					if (item.getFieldName().equals("path")) {
+					} else if (item.getFieldName().equals("path")) {
 						bookmark.setPath(item.getString());
-					}
-					if (item.getFieldName().equals("captureDate")) {
-						Timestamp dateTime = new Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(item.getString()).getTime());
+					} else if (item.getFieldName().equals("captureDate")) {
+						Timestamp dateTime = new Timestamp(
+								new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z")
+										.parse(item.getString()).getTime());
 						bookmark.setCaptureDate(dateTime);
-					}
-					if (item.getFieldName().equals("lat")) {
+					} else if (item.getFieldName().equals("lat")) {
 						bookmark.setLat(Float.parseFloat(item.getString()));
-					}
-					if (item.getFieldName().equals("long")) {
+					} else if (item.getFieldName().equals("long")) {
 						bookmark.setLon(Float.parseFloat(item.getString()));
-					}
-					if (item.getFieldName().equals("sharingFlag")) {
+					} else if (item.getFieldName().equals("sharingFlag")) {
 						bookmark.setSharingFlag(item.getString());
-					}
-					if (item.getFieldName().equals("additionalInfo")) {
+					} else if (item.getFieldName().equals("additionalInfo")) {
 						bookmark.setAdditionalInfo(item.getString());
+					} else if (item.getFieldName().equals("website")) {
+						website = true;
 					}
 				}
 
 			}
 			boolean status = dbHandler.addBookMark(bookmark);
-			if (status)
-				response.getWriter().write("Saved");
-			else
+			if (status) {
+				if (website) {
+					List bookmarkList = new ArrayList<BookMark>();
+					bookmarkList.add(bookmark);
+					request.setAttribute("bookmarkList", bookmarkList);
+					request.getRequestDispatcher("image.jsp").forward(request,
+							response);
+				} else {
+					response.getWriter().write("Saved");
+				}
+			} else
 				response.getWriter().write("Error saving file");
 
 		} catch (FileUploadException e) {

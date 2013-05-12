@@ -1,4 +1,6 @@
 
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
 <%@ page import="visualbookmarking.bean.BookMark"%>
 <%@ page import="java.io.*"%>
 
@@ -37,6 +39,7 @@ body {
 	href="assets/ico/apple-touch-icon-57-precomposed.png">
 </head>
 
+
 <body>
 	<div class="container">
 		<div class="navbar navbar-fixed-top">
@@ -49,7 +52,7 @@ body {
 					<div class="nav-collapse">
 						<ul class="nav">
 							<li class="active"><a href="index.jsp">Home</a></li>
-							<li class="active"><a href="upload.jsp">Add</a></li>
+							<li class="active"><a href="Uploader.jsp">Add</a></li>
 							<li class="active"><a href="about.jsp">About</a></li>
 						</ul>
 					</div>
@@ -59,55 +62,45 @@ body {
 		</div>
 
 		<%
-			BookMark bookmark = (BookMark) request.getAttribute("bookmarkObj");
-			if (bookmark != null) {
+			List<BookMark> bookmarkList = (ArrayList) request.getAttribute("bookmarkList");
+			if (bookmarkList != null) {
+				for (int i = 0; i < bookmarkList.size(); i++) {
+					BookMark row = (BookMark) bookmarkList.get(i);
 		%>
 
 		<div align="center">
-
 			<ul class="thumbnails">
-				<li class="span12">
+				<li>
 					<div class="thumbnail">
-						<img style="float: left" src="ImageServlet?id=<%=request.getParameter("id")%>" />
+						<img src="ImageServlet?id=<%=row.getId()%>" />
 						<div class="caption">
-							<h5><%=bookmark.getName()%></h5>
-							<p><table>
+							<h4><%=row.getName()%></h4>
+							<p>
+							<table>
 								<tr>
-							<td>Image Location:</td>
-							<td>Lat:<%=bookmark.getLat()%>, Long:<%=bookmark.getLon()%></td>
-						</tr>
-						<tr>
-							<td>Capture Date:</td>
-							<td><%=bookmark.getCaptureDate()%></td>
-						</tr>
-						<tr>
-							<td>Notes:</td>
-							<td><%=bookmark.getAdditionalInfo()%></td>
-						</tr>
-					</table>
-              
-          					
-             <!--  <p><a href="#" class="btn btn-success">Edit</a> <a href="#"class="btn btn-warning">Delete</a></p> -->
-            </div>
-          </div>
-        </li>
-      </ul>
-  
+									<td>Image Location:</td>
+									<td>Lat:<%=row.getLat()%>, Long:<%=row.getLon()%></td>
+								</tr>
+								<tr>
+									<td>Capture Date:</td>
+									<td><%=row.getCaptureDate()%></td>
+								</tr>
+								<tr>
+									<td>Notes:</td>
+									<td><%=row.getAdditionalInfo()%></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
 
-      
+		<%
+				}
+			}
+		%>
+
 	</div>
-	<%
-		} else {
-	%>
-	<p>No images to display!</p>
-	<%
-		}
-	%>
-
-</div>
-<!-- <footer>
-        <p>&copy; Simili Abhilash & Thankam Girija 2013</p>
-      </footer> -->
 </body>
-
 </html>

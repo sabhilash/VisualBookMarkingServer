@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -39,17 +40,24 @@ public class BookMarkServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		BookMark bookmark = null;
+		List bookmarkList = null;
 
 		try {
 			setDBHandler(request);
 			String id = request.getParameter("id");
+			String imageName = request.getParameter("imageName");
 
 			if (id != null && !(id.trim().equals(""))) {
-				bookmark = dbHandler.retrieveBookMarkById(id);
+				BookMark bookmark = dbHandler.retrieveBookMarkById(id);
+				bookmarkList = new ArrayList<BookMark>();
+				bookmarkList.add(bookmark);
+			}
+			
+			else if(imageName!=null && !(imageName.trim().equals(""))){
+				bookmarkList = dbHandler.retrieveBookMarksByName(imageName);
 			}
 
-			request.setAttribute("bookmarkObj", bookmark);
+			request.setAttribute("bookmarkList", bookmarkList);
 			request.getRequestDispatcher("image.jsp").forward(request, response);
 
 		} catch (Exception e) {
@@ -87,9 +95,7 @@ public class BookMarkServlet extends HttpServlet {
 						bookmark.setPath(item.getString());
 					}
 					if (item.getFieldName().equals("captureDate")) {
-						Timestamp dateTime = new Timestamp(
-								new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z")
-										.parse(item.getString()).getTime());
+						Timestamp dateTime = new Timestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").parse(item.getString()).getTime());
 						bookmark.setCaptureDate(dateTime);
 					}
 					if (item.getFieldName().equals("lat")) {

@@ -1,12 +1,14 @@
 package visualbookmarking.backend;
 
-import java.sql.Blob;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import visualbookmarking.bean.BookMark;
 
@@ -121,23 +123,29 @@ public class DBHandler {
 		return imageBytes;
 	}
 
-	public BookMark retrieveBookMarkByName(String fileName) {
-		BookMark bookMark = new BookMark();
+	public List<BookMark> retrieveBookMarksByName(String fileName) {
+		
+		List<BookMark> list = new ArrayList<BookMark>();
+		
 		try {
 			Statement stat = conn.createStatement();
 			ResultSet rs = stat.executeQuery(
 					"SELECT id,name,path,capture_date,lat,long,sharing_flag,additional_info FROM " + BOOKMARK_TABLE 
-					+ " WHERE " + KEY_NAME + " = " + fileName + ";");
+					+ " WHERE " + KEY_NAME + " = '" + fileName + "';");
 			while (rs.next()) {
-				populateBookMarkProperties(bookMark, rs);
+				BookMark bookMark = new BookMark();
+				list.add(populateBookMarkProperties(bookMark, rs));
 			}
 			rs.close();
-			conn.close();
+			
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
-		return bookMark;
+		return list;
 	}
+	
+	
+	
 	
 	public BookMark retrieveBookMarkById(String id) {
 		BookMark bookMark = new BookMark();

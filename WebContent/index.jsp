@@ -67,6 +67,8 @@ body {
 		<form method="GET" action="BookMarkInputServlet">
 			Enter a BookMark Id:&nbsp;&nbsp; <input type="text" id="id" name="id">
 			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<p>or Enter a imageName: &nbsp;&nbsp; <input type="text" id="imageName" name="imageName">
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
 			<p><input type="submit" value="Submit &raquo;"/>&nbsp;&nbsp;<input type="reset" value="Reset &raquo;"/></p>
 
           </form>

@@ -56,11 +56,11 @@ public class BookMark {
 	}
 
 	public float getLon() {
-		return lat;
+		return lon;
 	}
 
-	public void setLon(float lat) {
-		this.lat = lat;
+	public void setLon(float lon) {
+		this.lon = lon;
 	}
 
 	public String getPath() {

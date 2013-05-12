@@ -1,23 +1,31 @@
 package visualbookmarking.backend;
 
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import visualbookmarking.bean.BookMark;
 
+// CREATE TABLE BOOKMARK_TABLE(id VARCHAR  PRIMARY KEY,name TEXT,path TEXT,
+// 	capture_date DATETIME,lat REAL,long REAL,additional_info TEXT,sharing_flag CHAR,image BLOB)
 public class DBHandler {
 	private static final String BOOKMARK_DB = "BOOKMARK_DB.db";
 	private static final String BOOKMARK_TABLE = "BOOKMARK_TABLE";
 
 	private static final String KEY_ID = "id";
-	private static final String KEY_IMAGE = "image";
-	private static final String KEY_FILE_NAME = "file_name";
-	private static final String KEY_LOCATION = "location";
+	private static final String KEY_NAME = "name";
+	private static final String KEY_PATH = "path";
 	private static final String KEY_CAPTURE_DATE = "capture_date";
+	private static final String KEY_LAT = "lat";
+	private static final String KEY_LONG = "long";
+	private static final String KEY_SHARING_FLAG = "sharing_flag";
 	private static final String KEY_ADDITIONAL_INFO = "additional_info";
+	private static final String KEY_IMAGE = "image";
+	
 	private static Connection conn;
 
 	public DBHandler(String basePath) {
@@ -38,15 +46,19 @@ public class DBHandler {
 		try {
 			Statement stat = conn.createStatement();
 			stat.executeUpdate("DROP TABLE IF EXISTS " + BOOKMARK_TABLE + ";");
-			String CREATE_TABLE = "CREATE TABLE " + BOOKMARK_TABLE + "("
-			+ KEY_ID + " INTEGER, " 
-			+ KEY_IMAGE + " BLOB," 
-			+ KEY_FILE_NAME + " TEXT," 
-			+ KEY_LOCATION + " TEXT," 
-			+ KEY_CAPTURE_DATE + " TEXT," 
-			+ KEY_ADDITIONAL_INFO + " TEXT);";
+			String CREATE_TABLE = "CREATE TABLE " + BOOKMARK_TABLE 
+									+ "("
+									+ KEY_ID + " VARCHAR, " 
+									+ KEY_NAME + " TEXT," 
+									+ KEY_PATH + " TEXT,"
+									+ KEY_CAPTURE_DATE + " DATETIME,"
+									+ KEY_LAT + " REAL," 
+									+ KEY_LONG + " REAL," 
+									+ KEY_SHARING_FLAG + " CHAR," 
+									+ KEY_ADDITIONAL_INFO + " TEXT,"
+									+ KEY_IMAGE + " BLOB"
+									+");";
 			stat.executeUpdate(CREATE_TABLE);
-			conn.close();
 			System.out.println("Database created: "+BOOKMARK_DB);
 			
 		} catch(Exception e) {
@@ -56,42 +68,68 @@ public class DBHandler {
 
 	public boolean addBookMark(BookMark bookMark) {
 		try {
-			PreparedStatement prep = conn.prepareStatement(
-					"INSERT INTO " + BOOKMARK_TABLE 
-					+ " ( " + KEY_FILE_NAME + "," + KEY_IMAGE + "," + KEY_LOCATION + "," 
-					+ KEY_CAPTURE_DATE + "," + KEY_ADDITIONAL_INFO + " ) "
-					+ " VALUES (?,?,?,?,?);");
+			String insertQuery = "INSERT INTO " + BOOKMARK_TABLE 
+					+ " ( " 
+					+ KEY_ID + ","
+					+ KEY_NAME + "," 
+					+ KEY_PATH + "," 
+					+ KEY_CAPTURE_DATE + ","
+					+ KEY_LAT + "," 
+					+ KEY_LONG + "," 
+					+ KEY_SHARING_FLAG + ","
+					+ KEY_ADDITIONAL_INFO + "," 
+					+ KEY_IMAGE 
+					+ " ) "
+					+ " VALUES (?,?,?,?,?,?,?,?,?);";
+			
+			PreparedStatement prep = conn.prepareStatement(insertQuery);
 
-			prep.setString(1, bookMark.getFileName());
-			prep.setBytes(2, bookMark.getImage());
-			prep.setString(3, bookMark.getLocation());
-			prep.setString(4, bookMark.getCaptureDate());
-			prep.setString(5, bookMark.getAdditionalInfo());
+			prep.setString(1, bookMark.getId());
+			prep.setString(2, bookMark.getName());
+			prep.setString(3, bookMark.getPath());
+			prep.setTimestamp(4, bookMark.getCaptureDate());
+			prep.setFloat(5, bookMark.getLat());
+			prep.setFloat(6, bookMark.getLon());
+			prep.setString(7, bookMark.getSharingFlag());
+			prep.setString(8, bookMark.getAdditionalInfo());
+			prep.setBytes(9, bookMark.getImage());
 			prep.addBatch();
 			conn.setAutoCommit(false);
 			prep.executeBatch();
 			conn.setAutoCommit(true);
-			conn.close();
 			return true;
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 			return false;
 		}
 	}
+	
+	public byte[] retrieveBookMarkImage(String id){
+		byte[] imageBytes=null;
+		try {
+			Statement stat = conn.createStatement();
+			String query = "SELECT image FROM " + BOOKMARK_TABLE
+					+ " WHERE " + KEY_ID + " = '" + id + "';";
+			ResultSet rs = stat.executeQuery(query);
+			if (rs.next()) {
+				imageBytes = rs.getBytes(KEY_IMAGE);
+			}
+			rs.close();
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return imageBytes;
+	}
 
-	public BookMark retrieveBookMark(String fileName) {
+	public BookMark retrieveBookMarkByName(String fileName) {
 		BookMark bookMark = new BookMark();
 		try {
 			Statement stat = conn.createStatement();
 			ResultSet rs = stat.executeQuery(
-					"SELECT * FROM " + BOOKMARK_TABLE 
-					+ " WHERE " + KEY_FILE_NAME + " = " + fileName + ";");
+					"SELECT id,name,path,capture_date,lat,long,sharing_flag,additional_info FROM " + BOOKMARK_TABLE 
+					+ " WHERE " + KEY_NAME + " = " + fileName + ";");
 			while (rs.next()) {
-				bookMark.setFileName(rs.getString(KEY_FILE_NAME));
-				bookMark.setImage(rs.getBytes(KEY_IMAGE));
-				bookMark.setLocation(rs.getString(KEY_LOCATION));
-				bookMark.setCaptureDate(rs.getString(KEY_CAPTURE_DATE));
-				bookMark.setAdditionalInfo(rs.getString(KEY_ADDITIONAL_INFO));
+				populateBookMarkProperties(bookMark, rs);
 			}
 			rs.close();
 			conn.close();
@@ -100,5 +138,45 @@ public class DBHandler {
 		}
 		return bookMark;
 	}
+	
+	public BookMark retrieveBookMarkById(String id) {
+		BookMark bookMark = new BookMark();
+		try {
+			Statement stat = conn.createStatement();
+			ResultSet rs = stat.executeQuery(
+					"SELECT id,name,path,capture_date,lat,long,sharing_flag,additional_info FROM " + BOOKMARK_TABLE 
+					+ " WHERE id = '" + id + "';" );
+			if (rs.next()) {
+				bookMark = populateBookMarkProperties(bookMark, rs);
+			}
+			rs.close();
+		} catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		return bookMark;
+	}
+	
+	private BookMark populateBookMarkProperties(BookMark bookMark, ResultSet rs)throws SQLException {
+		
+		bookMark.setId(rs.getString(KEY_ID));
+		bookMark.setName(rs.getString(KEY_NAME));
+		bookMark.setPath(rs.getString(KEY_PATH));
+		bookMark.setCaptureDate(rs.getTimestamp(KEY_CAPTURE_DATE));
+		bookMark.setLat(rs.getLong(KEY_LAT));
+		bookMark.setLon(rs.getLong(KEY_LONG));
+		bookMark.setSharingFlag(rs.getString(KEY_SHARING_FLAG));
+		bookMark.setAdditionalInfo(rs.getString(KEY_ADDITIONAL_INFO));
+		//skip byte[]
+		return bookMark;
+		
+	}
+	
+	 public void destroy() {
+		    // Clean up.
+		    try {
+		      if (conn != null) conn.close();
+		    }
+		    catch (SQLException ignored) { }
+		  }
 
 }

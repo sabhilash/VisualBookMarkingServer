@@ -8,11 +8,45 @@
 		<servlet-name>BookMarkServlet</servlet-name>
 		<servlet-class>visualbookmarking.ui.BookMarkServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>MainServlet</display-name>
+		<servlet-name>MainServlet</servlet-name>
+		<servlet-class>MainServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>BookMarkInputServlet</display-name>
+		<servlet-name>BookMarkInputServlet</servlet-name>
+		<servlet-class>visualbookmarking.ui.BookMarkInputServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>ImageServlet</display-name>
+		<servlet-name>ImageServlet</servlet-name>
+		<servlet-class>visualbookmarking.ui.ImageServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
     <servlet-name>BookMarkServlet</servlet-name>
     <url-pattern>/BookMarkServlet</url-pattern>
   </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>MainServlet</servlet-name>
+		<url-pattern>/MainServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>BookMarkInputServlet</servlet-name>
+		<url-pattern>/BookMarkInputServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ImageServlet</servlet-name>
+		<url-pattern>/ImageServlet</url-pattern>
+	</servlet-mapping>
+	
 	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.jsp</welcome-file> 
 	</welcome-file-list>
 </web-app>

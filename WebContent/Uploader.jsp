@@ -53,9 +53,8 @@ body {
 			<div class="navbar-inner">
 				<div class="container">
 					<a class="btn btn-navbar" data-toggle="collapse"
-						data-target=".nav-collapse"> <span class="icon-bar"></span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span>
-					</a> <a class="brand" href="#">Visual BookMarker</a>
+						data-target=".nav-collapse"> 
+					</a> <a class="brand" href="#"><img src="assets/img/bookmarks.png" style="height:30px;width=30px;"/>Visual BookMarker</a>
 					<div class="nav-collapse">
 						<ul class="nav">
 							<li class="active"><a href="index.jsp">Home</a></li>

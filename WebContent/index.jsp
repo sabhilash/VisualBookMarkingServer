@@ -46,10 +46,9 @@ body {
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<a class="btn btn-navbar" data-toggle="collapse"
-						data-target=".nav-collapse"> <span class="icon-bar"></span> <span
-						class="icon-bar"></span> <span class="icon-bar"></span>
-					</a> <a class="brand" href="#">Visual BookMarker</a>
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
+					</a> 
+					<a class="brand" href="#"><img src="assets/img/bookmarks.png" style="height:30px;width=30px;"/>Visual BookMarker</a>
 					<div class="nav-collapse">
 						<ul class="nav">
 							<li class="active"><a href="index.jsp">Home</a></li>
@@ -71,8 +70,8 @@ body {
 
 			<div class="btn-toolbar">
 				<div class="btn-group searchby" data-toggle="buttons-radio">
-					<button type="button" class="btn text-center active" value="0">Search By Id</button>
-					<button type="button" class="btn text-center" value="1">Search By Name</button>
+					<button type="button" class="btn text-center active" value="0">Use Bookmark Id</button>
+					<button type="button" class="btn text-center" value="1">Use Username</button>
 				</div>
 			</div>
 			<div>
@@ -85,6 +84,8 @@ body {
 			</div>
 			<!-- /container -->
 
+		</div>
+		
 		</div>
 
 		<!-- Placed at the end of the document so the pages load faster -->

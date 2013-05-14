@@ -1,8 +1,10 @@
 package visualbookmarking.bean;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * The class to represent a book mark object
+ */
 public class BookMark {
 	private String id;
 	private String name;

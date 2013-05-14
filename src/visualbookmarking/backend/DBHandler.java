@@ -1,6 +1,5 @@
 package visualbookmarking.backend;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,8 +11,11 @@ import java.util.List;
 
 import visualbookmarking.bean.BookMark;
 
-// CREATE TABLE BOOKMARK_TABLE(id VARCHAR  PRIMARY KEY,name TEXT,path TEXT,
-// 	capture_date DATETIME,lat REAL,long REAL,additional_info TEXT,sharing_flag CHAR,image BLOB)
+/**
+ * This class provides the database access methods, such as  
+ * add book mark, delete book mark, retrieve book mark, 
+ * update book mark and to create the database.
+ */
 public class DBHandler {
 	private static final String BOOKMARK_DB = "BOOKMARK_DB.db";
 	private static final String BOOKMARK_TABLE = "BOOKMARK_TABLE";
@@ -27,7 +29,7 @@ public class DBHandler {
 	private static final String KEY_SHARING_FLAG = "sharing_flag";
 	private static final String KEY_ADDITIONAL_INFO = "additional_info";
 	private static final String KEY_IMAGE = "image";
-	
+
 	private static Connection conn;
 
 	public DBHandler(String basePath) {
@@ -38,7 +40,7 @@ public class DBHandler {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		new DBHandler("WebContent/");
 		createDatabase();
@@ -49,20 +51,20 @@ public class DBHandler {
 			Statement stat = conn.createStatement();
 			stat.executeUpdate("DROP TABLE IF EXISTS " + BOOKMARK_TABLE + ";");
 			String CREATE_TABLE = "CREATE TABLE " + BOOKMARK_TABLE 
-									+ "("
-									+ KEY_ID + " VARCHAR, " 
-									+ KEY_NAME + " TEXT," 
-									+ KEY_PATH + " TEXT,"
-									+ KEY_CAPTURE_DATE + " DATETIME,"
-									+ KEY_LAT + " REAL," 
-									+ KEY_LONG + " REAL," 
-									+ KEY_SHARING_FLAG + " CHAR," 
-									+ KEY_ADDITIONAL_INFO + " TEXT,"
-									+ KEY_IMAGE + " BLOB"
-									+");";
+					+ "("
+					+ KEY_ID + " VARCHAR, " 
+					+ KEY_NAME + " TEXT," 
+					+ KEY_PATH + " TEXT,"
+					+ KEY_CAPTURE_DATE + " DATETIME,"
+					+ KEY_LAT + " REAL," 
+					+ KEY_LONG + " REAL," 
+					+ KEY_SHARING_FLAG + " CHAR," 
+					+ KEY_ADDITIONAL_INFO + " TEXT,"
+					+ KEY_IMAGE + " BLOB"
+					+");";
 			stat.executeUpdate(CREATE_TABLE);
 			System.out.println("Database created: "+BOOKMARK_DB);
-			
+
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -83,7 +85,7 @@ public class DBHandler {
 					+ KEY_IMAGE 
 					+ " ) "
 					+ " VALUES (?,?,?,?,?,?,?,?,?);";
-			
+
 			PreparedStatement prep = conn.prepareStatement(insertQuery);
 
 			prep.setString(1, bookMark.getId());
@@ -105,7 +107,7 @@ public class DBHandler {
 			return false;
 		}
 	}
-	
+
 	public byte[] retrieveBookMarkImage(String id){
 		byte[] imageBytes=null;
 		try {
@@ -124,9 +126,9 @@ public class DBHandler {
 	}
 
 	public List<BookMark> retrieveBookMarksByName(String fileName) {
-		
+
 		List<BookMark> list = new ArrayList<BookMark>();
-		
+
 		try {
 			Statement stat = conn.createStatement();
 			ResultSet rs = stat.executeQuery(
@@ -137,16 +139,13 @@ public class DBHandler {
 				list.add(populateBookMarkProperties(bookMark, rs));
 			}
 			rs.close();
-			
+
 		} catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
 		return list;
 	}
-	
-	
-	
-	
+
 	public BookMark retrieveBookMarkById(String id) {
 		BookMark bookMark = null;
 		try {
@@ -164,9 +163,9 @@ public class DBHandler {
 		}
 		return bookMark;
 	}
-	
+
 	private BookMark populateBookMarkProperties(BookMark bookMark, ResultSet rs)throws SQLException {
-		
+
 		bookMark.setId(rs.getString(KEY_ID));
 		bookMark.setName(rs.getString(KEY_NAME));
 		bookMark.setPath(rs.getString(KEY_PATH));
@@ -177,15 +176,15 @@ public class DBHandler {
 		bookMark.setAdditionalInfo(rs.getString(KEY_ADDITIONAL_INFO));
 		//skip byte[]
 		return bookMark;
-		
+
 	}
-	
-	 public void destroy() {
-		    // Clean up.
-		    try {
-		      if (conn != null) conn.close();
-		    }
-		    catch (SQLException ignored) { }
-		  }
+
+	public void destroy() {
+		// Clean up.
+		try {
+			if (conn != null) conn.close();
+		}
+		catch (SQLException ignored) { }
+	}
 
 }
